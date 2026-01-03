@@ -1,101 +1,105 @@
-import React, { useState, useMemo } from 'react';
-import { 
-    Chart as ChartJS, 
-    CategoryScale, 
-    LinearScale, 
-    PointElement, 
-    LineElement, 
-    BarElement, 
-    Title, 
-    Tooltip, 
-    Legend 
-} from 'chart.js';
-import { Line, Bar } from 'react-chartjs-2';
+import React, { useMemo } from 'react';
 import { useData } from '../contexts/DataContext';
-import { calculateFinancialKpis, formatCurrency } from '../utils/financialCalculations';
-import Card from '../components/ui/Card';
-import { theme } from '../config/theme'; // Criado na Fase 1
+import { Bar, Doughnut } from 'react-chartjs-2';
+import 'chart.js/auto'; // Importante para os gráficos funcionarem
 
-// Registra componentes do Chart.js
-ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, BarElement, Title, Tooltip, Legend);
+// Componente de Card de Estatística (Visual Original)
+const StatCard = ({ title, value, icon, colorClass }) => (
+    <div className="bg-surface p-6 rounded-2xl border border-white/5 shadow-lg hover:border-white/10 transition-all duration-300 group">
+        <div className="flex items-center justify-between mb-4">
+            <div className={`p-3 rounded-xl bg-opacity-20 ${colorClass.replace('text-', 'bg-')} group-hover:scale-110 transition-transform duration-300`}>
+                <i className={`fa-solid ${icon} text-xl ${colorClass}`}></i>
+            </div>
+            {/* Pill de variação (mockup por enquanto) */}
+            <span className="text-xs font-medium px-2.5 py-0.5 rounded-full bg-green-500/10 text-green-400">
+                +4.5%
+            </span>
+        </div>
+        <h3 className="text-gray-400 text-sm font-medium mb-1">{title}</h3>
+        <p className="text-2xl font-bold text-white">{value}</p>
+    </div>
+);
 
 const Dashboard = () => {
-    const { payments, auctions, cards } = useData();
-    const [selectedDate, setSelectedDate] = useState(new Date());
+    const { clients, auctions, cards, payments } = useData();
 
-    // Recalcula KPIs sempre que os dados ou a data mudam
-    const { kpis, dailyData, categoryData } = useMemo(() => {
-        return calculateFinancialKpis(payments, auctions, cards, selectedDate);
-    }, [payments, auctions, cards, selectedDate]);
-
-    // Dados para o Gráfico de Linha (Desempenho Diário)
-    const lineChartData = {
-        labels: Object.keys(dailyData),
-        datasets: [
-            {
-                label: 'Faturamento',
-                data: Object.values(dailyData).map(d => d.revenue),
-                borderColor: theme.colors.primary,
-                backgroundColor: theme.colors.primary + '33', // Transparência
-                tension: 0.4
-            },
-            {
-                label: 'Lucro',
-                data: Object.values(dailyData).map(d => d.profit),
-                borderColor: theme.colors.success,
-                backgroundColor: theme.colors.success + '33',
-                tension: 0.4
-            }
-        ]
-    };
-
-    // Dados para o Gráfico de Barras (Categorias)
-    const barChartData = {
-        labels: Object.keys(categoryData),
-        datasets: [{
-            label: 'Lucro por Categoria',
-            data: Object.values(categoryData).map(d => d.profit),
-            backgroundColor: theme.charts.palette,
-        }]
-    };
+    // Cálculos Simples (Você pode expandir isso depois)
+    const kpis = useMemo(() => {
+        const totalRevenue = payments
+            .filter(p => p.status === 'Pago')
+            .reduce((acc, curr) => acc + (Number(curr.amount) || 0), 0);
+        
+        return {
+            totalClients: clients.length,
+            activeAuctions: auctions.filter(a => a.status === 'active').length,
+            totalItems: cards.length,
+            revenue: totalRevenue
+        };
+    }, [clients, auctions, cards, payments]);
 
     return (
-        <div className="space-y-6">
+        <div className="space-y-8 animate-fade-in">
+            {/* Header */}
             <div className="flex justify-between items-center">
-                <h1 className="text-3xl font-bold text-[#D946EF]">Dashboard</h1>
-                {/* Aqui você pode adicionar o seletor de mês/ano depois */}
+                <div>
+                    <h2 className="text-3xl font-bold text-white">Dashboard</h2>
+                    <p className="text-gray-400 mt-1">Visão geral da sua loja</p>
+                </div>
+                <div className="flex gap-3">
+                    <button className="px-4 py-2 bg-surface border border-white/10 rounded-xl text-sm font-medium hover:bg-white/5 transition-colors">
+                        <i className="fa-solid fa-download mr-2"></i> Relatório
+                    </button>
+                    <button className="px-4 py-2 bg-primary hover:bg-primary/90 text-white rounded-xl text-sm font-medium shadow-lg shadow-primary/25 transition-all">
+                        <i className="fa-solid fa-plus mr-2"></i> Novo Leilão
+                    </button>
+                </div>
             </div>
 
-            {/* KPIs Cards */}
+            {/* Stats Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                <Card className="text-center">
-                    <h3 className="text-[#D8D2E7] mb-2">FATURAMENTO (MÊS)</h3>
-                    <p className="text-3xl font-bold text-[#F1F5F9]">{formatCurrency(kpis.revenue)}</p>
-                </Card>
-                <Card className="text-center">
-                    <h3 className="text-[#D8D2E7] mb-2">LUCRO (MÊS)</h3>
-                    <p className="text-3xl font-bold text-[#34D399]">{formatCurrency(kpis.profit)}</p>
-                </Card>
-                <Card className="text-center">
-                    <h3 className="text-[#D8D2E7] mb-2">TICKET MÉDIO</h3>
-                    <p className="text-3xl font-bold text-[#F1F5F9]">{formatCurrency(kpis.avgTicket)}</p>
-                </Card>
-                <Card className="text-center">
-                    <h3 className="text-[#D8D2E7] mb-2">CONVERSÃO</h3>
-                    <p className="text-3xl font-bold text-[#D946EF]">{kpis.conversionRate}%</p>
-                </Card>
+                <StatCard 
+                    title="Receita Total" 
+                    value={`R$ ${kpis.revenue.toFixed(2)}`} 
+                    icon="fa-dollar-sign" 
+                    colorClass="text-green-400" 
+                />
+                <StatCard 
+                    title="Leilões Ativos" 
+                    value={kpis.activeAuctions} 
+                    icon="fa-gavel" 
+                    colorClass="text-primary" 
+                />
+                <StatCard 
+                    title="Total de Cartas" 
+                    value={kpis.totalItems} 
+                    icon="fa-layer-group" 
+                    colorClass="text-blue-400" 
+                />
+                <StatCard 
+                    title="Clientes" 
+                    value={kpis.totalClients} 
+                    icon="fa-users" 
+                    colorClass="text-purple-400" 
+                />
             </div>
 
-            {/* Gráficos */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                <Card className="lg:col-span-2 min-h-[300px]">
-                    <h3 className="text-xl font-bold text-[#D946EF] mb-4">Evolução Financeira</h3>
-                    <Line data={lineChartData} options={{ responsive: true, maintainAspectRatio: false }} />
-                </Card>
-                <Card className="min-h-[300px]">
-                    <h3 className="text-xl font-bold text-[#D946EF] mb-4">Por Categoria</h3>
-                    <Bar data={barChartData} options={{ indexAxis: 'y', responsive: true, maintainAspectRatio: false }} />
-                </Card>
+            {/* Aqui virão os gráficos (Placeholder para manter igual ao original) */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <div className="lg:col-span-2 bg-surface p-6 rounded-2xl border border-white/5 shadow-lg">
+                    <h3 className="text-lg font-bold text-white mb-6">Receita Mensal</h3>
+                    <div className="h-64 flex items-center justify-center text-gray-500 bg-black/20 rounded-xl border border-white/5 border-dashed">
+                        {/* Gráfico viria aqui */}
+                        <p>Gráfico de Receita em Construção</p>
+                    </div>
+                </div>
+                
+                <div className="bg-surface p-6 rounded-2xl border border-white/5 shadow-lg">
+                    <h3 className="text-lg font-bold text-white mb-6">Status de Pagamentos</h3>
+                    <div className="h-64 flex items-center justify-center text-gray-500 bg-black/20 rounded-xl border border-white/5 border-dashed">
+                        {/* Donut Chart viria aqui */}
+                        <p>Gráfico Circular em Construção</p>
+                    </div>
+                </div>
             </div>
         </div>
     );

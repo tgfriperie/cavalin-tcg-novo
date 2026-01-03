@@ -8,16 +8,21 @@ import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
 import Auctions from './pages/Auctions';
 import AuctionDetail from './pages/AuctionDetail';
-import LiveAuction from './pages/LiveAuction'; // <--- Importação Nova
+import LiveAuction from './pages/LiveAuction';
 import Inventory from './pages/Inventory';
 import Financial from './pages/Financial';
 
 // Componente de Layout Persistente (Sidebar + Conteúdo)
 const MainLayout = () => {
     return (
-        <div className="flex min-h-screen bg-[#1A1129] text-[#F1F5F9]">
+        // Atualizado para usar as cores do tema e fonte Poppins
+        <div className="flex min-h-screen bg-background text-text font-sans">
             <Sidebar />
-            <main className="flex-1 p-8 overflow-y-auto h-screen">
+            
+            {/* ml-64: Adiciona margem a esquerda para compensar a Sidebar fixa 
+               min-h-screen: Garante que o fundo cubra toda a altura
+            */}
+            <main className="flex-1 ml-64 p-8 overflow-y-auto min-h-screen">
                 <div className="max-w-7xl mx-auto pb-20">
                     <Outlet /> {/* Onde as páginas serão renderizadas */}
                 </div>
@@ -33,9 +38,9 @@ const AppRoutes = () => {
     if (loading) {
         // Splash Screen de Carregamento
         return (
-            <div className="fixed inset-0 flex flex-col items-center justify-center bg-[#1A1129]">
-                <div className="w-16 h-16 border-4 border-[#D946EF] border-t-transparent rounded-full animate-spin mb-4"></div>
-                <h1 className="text-xl font-bold text-[#D946EF] animate-pulse">Carregando Sistema...</h1>
+            <div className="fixed inset-0 flex flex-col items-center justify-center bg-background">
+                <div className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin mb-4"></div>
+                <h1 className="text-xl font-bold text-primary animate-pulse">Carregando Sistema...</h1>
             </div>
         );
     }
@@ -55,7 +60,7 @@ const AppRoutes = () => {
                 {/* Rotas de Leilão */}
                 <Route path="auctions" element={<Auctions />} />
                 <Route path="auctions/:id" element={<AuctionDetail />} />
-                <Route path="live/:id" element={<LiveAuction />} /> {/* <--- Rota Ao Vivo */}
+                <Route path="live/:id" element={<LiveAuction />} />
                 
                 <Route path="inventory" element={<Inventory />} />
                 <Route path="financial" element={<Financial />} />
@@ -63,6 +68,7 @@ const AppRoutes = () => {
                 {/* Rotas placeholders para páginas que você ainda vai migrar */}
                 <Route path="clients" element={<div className="text-center p-10">Página de Clientes em construção</div>} />
                 <Route path="reports" element={<div className="text-center p-10">Página de Relatórios em construção</div>} />
+                <Route path="settings" element={<div className="text-center p-10">Página de Configurações em construção</div>} />
             </Route>
         </Routes>
     );

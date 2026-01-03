@@ -7,10 +7,10 @@ import Sidebar from './components/layout/Sidebar';
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
 import Auctions from './pages/Auctions';
+import AuctionDetail from './pages/AuctionDetail';
+import LiveAuction from './pages/LiveAuction'; // <--- Importação Nova
 import Inventory from './pages/Inventory';
 import Financial from './pages/Financial';
-// Adicione as outras páginas (Clients, Reports) conforme for criando os arquivos
-// import Clients from './pages/Clients'; 
 
 // Componente de Layout Persistente (Sidebar + Conteúdo)
 const MainLayout = () => {
@@ -51,7 +51,12 @@ const AppRoutes = () => {
                 <Route index element={<Navigate to="/dashboard" replace />} />
                 
                 <Route path="dashboard" element={<Dashboard />} />
+                
+                {/* Rotas de Leilão */}
                 <Route path="auctions" element={<Auctions />} />
+                <Route path="auctions/:id" element={<AuctionDetail />} />
+                <Route path="live/:id" element={<LiveAuction />} /> {/* <--- Rota Ao Vivo */}
+                
                 <Route path="inventory" element={<Inventory />} />
                 <Route path="financial" element={<Financial />} />
                 

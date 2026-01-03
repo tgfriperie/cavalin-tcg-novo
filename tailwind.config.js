@@ -7,17 +7,13 @@ export default {
   theme: {
     extend: {
       colors: {
-        // Cores extraídas do seu index (1).html original
-        background: '#1A1129', // Fundo principal escuro
-        surface: '#2D1B4E',    // Cor dos cards/sidebar (Roxo mais claro)
-        primary: '#D946EF',    // Rosa/Roxo vibrante dos botões e destaques
-        secondary: '#64748B',  // Cinza para textos secundários
-        success: '#22C55E',    // Verde
-        danger: '#EF4444',     // Vermelho
-        text: '#F1F5F9',       // Texto claro
+        background: '#130d1e', // Cor correta
+        primary: '#d946ef',
+        secondary: '#94a3b8',
       },
-      fontFamily: {
-        sans: ['Poppins', 'sans-serif'], // Fonte original
+      backgroundImage: {
+        'gradient-primary': 'linear-gradient(135deg, #d946ef 0%, #7c3aed 100%)',
+        'gradient-glass': 'linear-gradient(180deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.01) 100%)',
       }
     },
   },
